@@ -2,18 +2,19 @@ package main
 
 import (
 	"fmt"
+	"time"
 )
 
 func calculator(firstChan <-chan int, secondChan <-chan int, stopChan <-chan struct{}) <-chan int {
 	outp := make(chan int)
-	go func(c chan int) {
-		defer close(c)
+	go func(ch chan int) {
+		defer close(ch)
 
 		select {
 		case n := <-firstChan:
-			c <- n * n
+			ch <- n * n
 		case n := <-secondChan:
-			c <- n * 3
+			ch <- n * 3
 		case <-stopChan:
 		}
 	}(outp)
@@ -22,13 +23,26 @@ func calculator(firstChan <-chan int, secondChan <-chan int, stopChan <-chan str
 }
 
 func main() {
-	c1 := make(chan int)
-	c2 := make(chan int)
-	stop := make(chan struct{})
+	firstCh := make(chan int)
+	secondCh := make(chan int)
+	stopCh := make(chan struct{})
 
-	result := calculator(c1, c2, stop)
+	go func() {
+		time.Sleep(1 * time.Second)
+		firstCh <- 100
+	}()
 
-	c1 <- 3
+	go func() {
+		time.Sleep(2 * time.Second)
+		secondCh <- 7
+	}()
 
-	fmt.Println(<-result)
+	output := calculator(firstCh, secondCh, stopCh)
+
+	select {
+	case result := <-output:
+		fmt.Println("Результат:", result)
+	case <-time.After(5 * time.Second):
+		fmt.Println("Время ожидания истекло")
+	}
 }

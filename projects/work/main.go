@@ -3,10 +3,12 @@ package main
 import (
 	"fmt"
 	"sync"
+	"time"
 )
 
 func work() {
-	fmt.Println("work func is working")
+	time.Sleep(time.Millisecond * 50)
+	fmt.Println("done")
 }
 
 func main() {

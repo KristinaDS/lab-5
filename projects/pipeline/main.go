@@ -5,11 +5,11 @@ import (
 )
 
 func removeDuplicates(inputStream, outputStream chan string) {
-	var previousVal string
+	var previous string
 	for v := range inputStream {
-		if previousVal != v {
+		if previous != v {
 			outputStream <- v
-			previousVal = v
+			previous = v
 		}
 	}
 	close(outputStream)
@@ -21,7 +21,7 @@ func main() {
 	go removeDuplicates(inputStream, outputStream)
 
 	var input string
-	fmt.Printf("Введите текст с дубликатами: ")
+	fmt.Printf("Введите строку с дубликатами: ")
 	fmt.Scanln(&input)
 
 	go func() {
@@ -32,7 +32,7 @@ func main() {
 		}
 	}()
 
-	fmt.Printf("Текст без дубликатов: ")
+	fmt.Printf("Строка без дубликатов: ")
 	for v := range outputStream {
 		fmt.Printf("%s", v)
 	}
